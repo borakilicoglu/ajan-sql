@@ -24,11 +24,33 @@ function createMockPool(rows: unknown[]) {
   return {
     pool: {
       connect,
+      query,
     },
     query,
     release,
     connect,
   };
+}
+
+function createDescribeTableRows() {
+  return [
+    {
+      column_name: "id",
+      data_type: "bigint",
+      is_nullable: "NO",
+      column_default: null,
+      is_primary_key: true,
+      is_unique: true,
+    },
+    {
+      column_name: "email",
+      data_type: "text",
+      is_nullable: "NO",
+      column_default: null,
+      is_primary_key: false,
+      is_unique: true,
+    },
+  ];
 }
 
 describe("runReadonlyQuery", () => {
@@ -90,13 +112,63 @@ describe("explainReadonlyQuery", () => {
 describe("sampleRows", () => {
   it("builds a limited table sample query", async () => {
     const mock = createMockPool([{ id: 1 }]);
+    mock.query.mockImplementation(async (sql: string) => {
+      if (sql === "BEGIN" || sql.startsWith("SET LOCAL") || sql === "ROLLBACK") {
+        return { rows: [] };
+      }
+
+      if (sql.includes("from information_schema.columns")) {
+        return { rows: createDescribeTableRows() };
+      }
+
+      return { rows: [{ id: 1 }] };
+    });
 
     const result = await sampleRows(mock.pool as any, "users", "public", 5);
 
-    expect(result.sql).toBe('SELECT * FROM "public"."users" LIMIT 5');
-    expect(mock.query).toHaveBeenNthCalledWith(
-      3,
-      'SELECT * FROM "public"."users" LIMIT 5',
+    expect(result.sql).toBe('SELECT * FROM "public"."users" ORDER BY "id" LIMIT 5');
+    expect(mock.query.mock.calls.map((call) => call[0])).toContain(
+      'SELECT * FROM "public"."users" ORDER BY "id" LIMIT 5',
     );
+  });
+
+  it("supports selecting specific columns", async () => {
+    const mock = createMockPool([{ email: "ada@example.com" }]);
+    mock.query.mockImplementation(async (sql: string) => {
+      if (sql === "BEGIN" || sql.startsWith("SET LOCAL") || sql === "ROLLBACK") {
+        return { rows: [] };
+      }
+
+      if (sql.includes("from information_schema.columns")) {
+        return { rows: createDescribeTableRows() };
+      }
+
+      return { rows: [{ email: "ada@example.com" }] };
+    });
+
+    const result = await sampleRows(
+      mock.pool as any,
+      "users",
+      "public",
+      3,
+      ["email"],
+    );
+
+    expect(result.sql).toBe('SELECT "email" FROM "public"."users" ORDER BY "id" LIMIT 3');
+  });
+
+  it("rejects unknown selected columns", async () => {
+    const mock = createMockPool([]);
+    mock.query.mockImplementation(async (sql: string) => {
+      if (sql.includes("from information_schema.columns")) {
+        return { rows: createDescribeTableRows() };
+      }
+
+      return { rows: [] };
+    });
+
+    await expect(
+      sampleRows(mock.pool as any, "users", "public", 3, ["password_hash"]),
+    ).rejects.toThrow("Unknown column for sample_rows: password_hash");
   });
 });

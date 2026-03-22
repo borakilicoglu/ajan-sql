@@ -1,6 +1,7 @@
 import type { QueryResultRow } from "pg";
 
 import type { DbPool } from "../db/pool";
+import { describeTable } from "../db/schema";
 import {
   getReadonlyDefaults,
   guardReadonlyQuery,
@@ -59,14 +60,42 @@ export async function sampleRows(
   tableName: string,
   schemaName = "public",
   limit = 10,
+  columns?: string[],
 ): Promise<ReadonlyQueryResult> {
   const defaults = getReadonlyDefaults();
   const safeLimit = Math.min(limit, defaults.maxLimit);
+  const description = await describeTable(pool, tableName, schemaName);
+
+  if (!description) {
+    throw new Error(`Table not found: ${schemaName}.${tableName}`);
+  }
+
+  const availableColumns = new Set(description.columns.map((column) => column.name));
+  const selectedColumns =
+    columns && columns.length > 0
+      ? columns.map((column) => {
+          if (!availableColumns.has(column)) {
+            throw new Error(`Unknown column for sample_rows: ${column}`);
+          }
+
+          return quoteIdentifier(column);
+        })
+      : ["*"];
+
+  const primaryKeyColumns = description.columns
+    .filter((column) => column.isPrimaryKey)
+    .map((column) => quoteIdentifier(column.name));
+
   const sql = [
-    "SELECT *",
+    `SELECT ${selectedColumns.join(", ")}`,
     `FROM ${quoteIdentifier(schemaName)}.${quoteIdentifier(tableName)}`,
+    primaryKeyColumns.length > 0
+      ? `ORDER BY ${primaryKeyColumns.join(", ")}`
+      : "",
     `LIMIT ${safeLimit}`,
-  ].join(" ");
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return runReadonlyQuery(pool, sql, { defaultLimit: safeLimit });
 }

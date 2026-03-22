@@ -41,6 +41,7 @@ type SampleRowsArgs = {
   name: string;
   schema?: string;
   limit?: number;
+  columns?: string[];
 };
 
 export function registerSchemaTools(
@@ -128,14 +129,16 @@ export function registerSchemaTools(
         name: z.string().min(1),
         schema: z.string().min(1).optional(),
         limit: z.number().int().positive().max(100).optional(),
+        columns: z.array(z.string().min(1)).optional(),
       },
     },
-    async ({ name, schema, limit }: SampleRowsArgs) => {
+    async ({ name, schema, limit, columns }: SampleRowsArgs) => {
       const result = await sampleRows(
         deps.pool,
         name,
         schema ?? "public",
         limit ?? 10,
+        columns,
       );
 
       return asTextResult(result);

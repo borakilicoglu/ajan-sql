@@ -9,7 +9,7 @@
 | `list_relationships` | List foreign key relationships | None | N/A |
 | `run_readonly_query` | Execute a readonly `SELECT` query | `sql` | Yes |
 | `explain_query` | Return JSON execution plan for a readonly query | `sql` | Yes |
-| `sample_rows` | Return a limited sample from a table | `name`, optional `schema`, optional `limit` | Yes |
+| `sample_rows` | Return a limited sample from a table | `name`, optional `schema`, optional `limit`, optional `columns` | Yes |
 
 ## `list_tables`
 
@@ -53,3 +53,4 @@ Inputs:
 - `name`
 - `schema` optional, defaults to `public`
 - `limit` optional, max `100`
+- `columns` optional list of selected column names
