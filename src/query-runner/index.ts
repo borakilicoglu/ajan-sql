@@ -22,12 +22,22 @@ export type ReadonlyQueryResult = {
 export type ExplainQueryResult = {
   sql: string;
   durationMs: number;
+  summary: ExplainPlanSummary | null;
   plan: unknown;
 };
 
 export type QueryColumn = {
   name: string;
   dataTypeId: number;
+};
+
+export type ExplainPlanSummary = {
+  nodeType: string | null;
+  relationName: string | null;
+  planRows: number | null;
+  startupCost: number | null;
+  totalCost: number | null;
+  childCount: number;
 };
 
 export async function runReadonlyQuery(
@@ -62,6 +72,7 @@ export async function explainReadonlyQuery(
   return {
     sql: guarded.sql,
     durationMs: result.durationMs,
+    summary: summarizeExplainPlan(plan),
     plan,
   };
 }
@@ -141,6 +152,44 @@ function toQueryColumn(field: FieldDef): QueryColumn {
     name: field.name,
     dataTypeId: field.dataTypeID,
   };
+}
+
+function summarizeExplainPlan(plan: unknown): ExplainPlanSummary | null {
+  if (!Array.isArray(plan) || plan.length === 0) {
+    return null;
+  }
+
+  const root = plan[0] as { Plan?: Record<string, unknown> };
+  const rootPlan = root?.Plan;
+
+  if (!rootPlan || typeof rootPlan !== "object") {
+    return null;
+  }
+
+  const childPlans = Array.isArray(rootPlan.Plans) ? rootPlan.Plans : [];
+
+  return {
+    nodeType: getStringField(rootPlan, "Node Type"),
+    relationName: getStringField(rootPlan, "Relation Name"),
+    planRows: getNumberField(rootPlan, "Plan Rows"),
+    startupCost: getNumberField(rootPlan, "Startup Cost"),
+    totalCost: getNumberField(rootPlan, "Total Cost"),
+    childCount: childPlans.length,
+  };
+}
+
+function getStringField(
+  plan: Record<string, unknown>,
+  key: string,
+): string | null {
+  return typeof plan[key] === "string" ? (plan[key] as string) : null;
+}
+
+function getNumberField(
+  plan: Record<string, unknown>,
+  key: string,
+): number | null {
+  return typeof plan[key] === "number" ? (plan[key] as number) : null;
 }
 
 function assertRowCount(rowCount: number, limit: number): void {

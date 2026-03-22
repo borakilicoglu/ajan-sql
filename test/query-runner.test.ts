@@ -106,7 +106,19 @@ describe("runReadonlyQuery", () => {
 
 describe("explainReadonlyQuery", () => {
   it("wraps a guarded query with EXPLAIN", async () => {
-    const mock = createMockPool([{ "QUERY PLAN": [{ Plan: { Node: "Seq Scan" } }] }]);
+    const explainPlan = [
+      {
+        Plan: {
+          "Node Type": "Seq Scan",
+          "Relation Name": "users",
+          "Plan Rows": 5,
+          "Startup Cost": 0,
+          "Total Cost": 12.5,
+          Plans: [],
+        },
+      },
+    ];
+    const mock = createMockPool([{ "QUERY PLAN": explainPlan }]);
 
     const result = await explainReadonlyQuery(
       mock.pool as any,
@@ -115,7 +127,15 @@ describe("explainReadonlyQuery", () => {
 
     expect(result.sql).toBe("select * from users limit 5");
     expect(result.durationMs).toEqual(expect.any(Number));
-    expect(result.plan).toEqual([{ Plan: { Node: "Seq Scan" } }]);
+    expect(result.summary).toEqual({
+      nodeType: "Seq Scan",
+      relationName: "users",
+      planRows: 5,
+      startupCost: 0,
+      totalCost: 12.5,
+      childCount: 0,
+    });
+    expect(result.plan).toEqual(explainPlan);
     expect(mock.query).toHaveBeenNthCalledWith(
       3,
       "EXPLAIN (FORMAT JSON) select * from users limit 5",

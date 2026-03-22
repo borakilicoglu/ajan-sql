@@ -38,7 +38,7 @@ Inputs:
 
 ## `explain_query`
 
-Runs `EXPLAIN (FORMAT JSON)` for a guarded readonly query and includes execution timing.
+Runs `EXPLAIN (FORMAT JSON)` for a guarded readonly query and includes execution timing plus a lightweight root-node summary.
 
 Inputs:
 
