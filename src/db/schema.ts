@@ -3,6 +3,8 @@ import type { DbPool } from "./pool";
 export type TableSummary = {
   schema: string;
   name: string;
+  comment: string | null;
+  estimatedRowCount: number | null;
 };
 
 export type ColumnSummary = {
@@ -41,12 +43,23 @@ export async function listTables(pool: DbPool): Promise<TableSummary[]> {
   const result = await pool.query<{
     table_schema: string;
     table_name: string;
+    table_comment: string | null;
+    estimated_row_count: string | number | null;
   }>(
     `
-      select table_schema, table_name
-      from information_schema.tables
-      where table_type = 'BASE TABLE'
-        and table_schema not in ('information_schema', 'pg_catalog')
+      select
+        t.table_schema,
+        t.table_name,
+        pg_catalog.obj_description(c.oid, 'pg_class') as table_comment,
+        c.reltuples as estimated_row_count
+      from information_schema.tables t
+      join pg_catalog.pg_namespace n
+        on n.nspname = t.table_schema
+      join pg_catalog.pg_class c
+        on c.relnamespace = n.oid
+       and c.relname = t.table_name
+      where t.table_type = 'BASE TABLE'
+        and t.table_schema not in ('information_schema', 'pg_catalog')
       order by table_schema, table_name
     `,
   );
@@ -54,6 +67,11 @@ export async function listTables(pool: DbPool): Promise<TableSummary[]> {
   return result.rows.map((row) => ({
     schema: row.table_schema,
     name: row.table_name,
+    comment: row.table_comment,
+    estimatedRowCount:
+      row.estimated_row_count === null
+        ? null
+        : Math.max(0, Math.round(Number(row.estimated_row_count))),
   }));
 }
 

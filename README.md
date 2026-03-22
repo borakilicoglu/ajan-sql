@@ -82,7 +82,7 @@ These rules should never be bypassed.
 
 | Tool | Purpose | Inputs | Guarded | Structured Output |
 | --- | --- | --- | --- | --- |
-| `list_tables` | List visible database tables | None | N/A | `TableSummary[]` |
+| `list_tables` | List visible database tables with comments and row estimates | None | N/A | `TableSummary[]` |
 | `describe_table` | Describe columns and types for one table | `name`, optional `schema` | N/A | `TableDescription` |
 | `list_relationships` | List foreign key relationships | None | N/A | `RelationshipSummary[]` |
 | `run_readonly_query` | Execute a readonly `SELECT` query | `sql` | Yes | `ReadonlyQueryResult` |

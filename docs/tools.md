@@ -20,7 +20,7 @@ All tools return both:
 
 ## `list_tables`
 
-Returns all visible base tables outside PostgreSQL system schemas.
+Returns all visible base tables outside PostgreSQL system schemas, including table comments and PostgreSQL row-count estimates when available.
 
 `structuredContent`:
 
@@ -28,7 +28,9 @@ Returns all visible base tables outside PostgreSQL system schemas.
 [
   {
     "schema": "public",
-    "name": "users"
+    "name": "users",
+    "comment": "Application users",
+    "estimatedRowCount": 42
   }
 ]
 ```

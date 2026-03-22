@@ -8,8 +8,18 @@ function createMockPool() {
       if (sql.includes("from information_schema.tables")) {
         return {
           rows: [
-            { table_schema: "public", table_name: "users" },
-            { table_schema: "public", table_name: "posts" },
+            {
+              table_schema: "public",
+              table_name: "users",
+              table_comment: "Application users",
+              estimated_row_count: 42,
+            },
+            {
+              table_schema: "public",
+              table_name: "posts",
+              table_comment: null,
+              estimated_row_count: 128,
+            },
           ],
         };
       }
@@ -196,8 +206,18 @@ describe("createAjanServer", () => {
     const tablesResult = await server._registeredTools["list_tables"].handler({});
     expect(tablesResult.content[0].text).toContain("Listed 2 tables");
     expect(tablesResult.structuredContent).toEqual([
-      { schema: "public", name: "users" },
-      { schema: "public", name: "posts" },
+      {
+        schema: "public",
+        name: "users",
+        comment: "Application users",
+        estimatedRowCount: 42,
+      },
+      {
+        schema: "public",
+        name: "posts",
+        comment: null,
+        estimatedRowCount: 128,
+      },
     ]);
 
     const relationshipsResult =
