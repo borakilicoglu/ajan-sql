@@ -1,0 +1,78 @@
+import { describe, expect, it } from "vitest";
+
+import { guardReadonlyQuery, quoteIdentifier } from "../src/guard";
+
+describe("guardReadonlyQuery", () => {
+  it("adds a default LIMIT when missing", () => {
+    const result = guardReadonlyQuery("select * from users");
+
+    expect(result.sql).toBe("select * from users LIMIT 100");
+    expect(result.limit).toBe(100);
+    expect(result.timeoutMs).toBe(5000);
+  });
+
+  it("allows an existing LIMIT up to the max", () => {
+    const result = guardReadonlyQuery("select * from users limit 5");
+
+    expect(result.sql).toBe("select * from users limit 5");
+    expect(result.limit).toBe(5);
+  });
+
+  it("rejects non-select queries", () => {
+    expect(() => guardReadonlyQuery("delete from users")).toThrow(
+      "Only SELECT queries are allowed",
+    );
+  });
+
+  it("rejects blocked keywords", () => {
+    expect(() => guardReadonlyQuery("select drop from users")).toThrow(
+      "Blocked SQL keyword detected: DROP",
+    );
+  });
+
+  it("allows blocked words inside string literals", () => {
+    const result = guardReadonlyQuery(
+      "select * from users where email like 'dropbox%'",
+    );
+
+    expect(result.sql).toBe("select * from users where email like 'dropbox%' LIMIT 100");
+  });
+
+  it("rejects multiple statements", () => {
+    expect(() =>
+      guardReadonlyQuery("select * from users; select * from posts"),
+    ).toThrow("Only a single SQL statement is allowed");
+  });
+
+  it("rejects comments", () => {
+    expect(() => guardReadonlyQuery("select * from users -- comment")).toThrow(
+      "SQL comments are not allowed",
+    );
+  });
+
+  it("rejects LIMIT values above the maximum", () => {
+    expect(() => guardReadonlyQuery("select * from users limit 500")).toThrow(
+      "Query LIMIT exceeds maximum allowed value of 100",
+    );
+  });
+
+  it("caps timeout at five seconds", () => {
+    const result = guardReadonlyQuery("select * from users", {
+      timeoutMs: 10_000,
+    });
+
+    expect(result.timeoutMs).toBe(5000);
+  });
+});
+
+describe("quoteIdentifier", () => {
+  it("quotes valid identifiers", () => {
+    expect(quoteIdentifier("users")).toBe("\"users\"");
+  });
+
+  it("rejects unsafe identifiers", () => {
+    expect(() => quoteIdentifier("users;drop table users")).toThrow(
+      "Invalid SQL identifier: users;drop table users",
+    );
+  });
+});

@@ -7,6 +7,11 @@ import {
   listTables,
 } from "../db/schema";
 import type { DbPool } from "../db/pool";
+import {
+  explainReadonlyQuery,
+  runReadonlyQuery,
+  sampleRows,
+} from "../query-runner";
 
 type SchemaToolDeps = {
   pool: DbPool;
@@ -95,8 +100,9 @@ export function registerSchemaTools(
         sql: z.string().min(1),
       },
     },
-    async (_args: SqlArgs) => {
-      throw new Error("run_readonly_query is not implemented yet");
+    async ({ sql }: SqlArgs) => {
+      const result = await runReadonlyQuery(deps.pool, sql);
+      return asTextResult(result);
     },
   );
 
@@ -108,8 +114,9 @@ export function registerSchemaTools(
         sql: z.string().min(1),
       },
     },
-    async (_args: SqlArgs) => {
-      throw new Error("explain_query is not implemented yet");
+    async ({ sql }: SqlArgs) => {
+      const result = await explainReadonlyQuery(deps.pool, sql);
+      return asTextResult(result);
     },
   );
 
@@ -123,8 +130,15 @@ export function registerSchemaTools(
         limit: z.number().int().positive().max(100).optional(),
       },
     },
-    async (_args: SampleRowsArgs) => {
-      throw new Error("sample_rows is not implemented yet");
+    async ({ name, schema, limit }: SampleRowsArgs) => {
+      const result = await sampleRows(
+        deps.pool,
+        name,
+        schema ?? "public",
+        limit ?? 10,
+      );
+
+      return asTextResult(result);
     },
   );
 }
