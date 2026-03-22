@@ -37,7 +37,7 @@ Returns all visible base tables outside PostgreSQL system schemas, including tab
 
 ## `describe_table`
 
-Returns column names, types, nullability, default values, basic key metadata, and foreign key reference metadata for a table.
+Returns column names, types, nullability, default values, basic key metadata, foreign key reference metadata, and table index metadata.
 
 Inputs:
 
@@ -63,6 +63,14 @@ Inputs:
         "table": "users",
         "column": "id"
       }
+    }
+  ],
+  "indexes": [
+    {
+      "name": "posts_pkey",
+      "columns": ["id"],
+      "isUnique": true,
+      "isPrimary": true
     }
   ]
 }

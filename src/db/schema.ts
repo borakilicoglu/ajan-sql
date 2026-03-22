@@ -27,6 +27,7 @@ export type TableDescription = {
   schema: string;
   name: string;
   columns: ColumnSummary[];
+  indexes: TableIndexSummary[];
 };
 
 export type RelationshipSummary = {
@@ -37,6 +38,13 @@ export type RelationshipSummary = {
   targetSchema: string;
   targetTable: string;
   targetColumn: string;
+};
+
+export type TableIndexSummary = {
+  name: string;
+  columns: string[];
+  isUnique: boolean;
+  isPrimary: boolean;
 };
 
 export async function listTables(pool: DbPool): Promise<TableSummary[]> {
@@ -154,6 +162,57 @@ export async function describeTable(
     return null;
   }
 
+  const indexResult = await pool.query<{
+    index_name: string;
+    column_name: string;
+    is_unique: boolean;
+    is_primary: boolean;
+    ordinal_position: number;
+  }>(
+    `
+      select
+        i.relname as index_name,
+        a.attname as column_name,
+        ix.indisunique as is_unique,
+        ix.indisprimary as is_primary,
+        key_columns.ordinality as ordinal_position
+      from pg_catalog.pg_class t
+      join pg_catalog.pg_namespace n
+        on n.oid = t.relnamespace
+      join pg_catalog.pg_index ix
+        on ix.indrelid = t.oid
+      join pg_catalog.pg_class i
+        on i.oid = ix.indexrelid
+      join unnest(ix.indkey) with ordinality as key_columns(attnum, ordinality)
+        on true
+      join pg_catalog.pg_attribute a
+        on a.attrelid = t.oid
+       and a.attnum = key_columns.attnum
+      where n.nspname = $1
+        and t.relname = $2
+      order by i.relname, key_columns.ordinality
+    `,
+    [schemaName, tableName],
+  );
+
+  const indexesByName = new Map<string, TableIndexSummary>();
+
+  for (const row of indexResult.rows) {
+    const existing = indexesByName.get(row.index_name);
+
+    if (existing) {
+      existing.columns.push(row.column_name);
+      continue;
+    }
+
+    indexesByName.set(row.index_name, {
+      name: row.index_name,
+      columns: [row.column_name],
+      isUnique: row.is_unique,
+      isPrimary: row.is_primary,
+    });
+  }
+
   return {
     schema: schemaName,
     name: tableName,
@@ -173,6 +232,7 @@ export async function describeTable(
             }
           : null,
     })),
+    indexes: [...indexesByName.values()],
   };
 }
 

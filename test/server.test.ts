@@ -42,6 +42,20 @@ function createMockPool() {
         };
       }
 
+      if (sql.includes("from pg_catalog.pg_class t")) {
+        return {
+          rows: [
+            {
+              index_name: "users_pkey",
+              column_name: "id",
+              is_unique: true,
+              is_primary: true,
+              ordinal_position: 1,
+            },
+          ],
+        };
+      }
+
       if (sql.includes("from information_schema.table_constraints")) {
         return {
           rows: [
@@ -165,6 +179,14 @@ describe("createAjanServer", () => {
           isPrimaryKey: true,
           isUnique: true,
           references: null,
+        },
+      ],
+      indexes: [
+        {
+          name: "users_pkey",
+          columns: ["id"],
+          isUnique: true,
+          isPrimary: true,
         },
       ],
     });
