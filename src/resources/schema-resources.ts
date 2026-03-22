@@ -43,7 +43,27 @@ export function registerSchemaResources(
 
   server.registerResource(
     "schema-table",
-    new ResourceTemplate("schema://table/{name}", { list: undefined }),
+    new ResourceTemplate("schema://table/{name}", {
+      list: async () => {
+        const tables = await listTables(deps.pool);
+
+        return {
+          resources: tables.map((table) => ({
+            uri: `schema://table/${table.name}`,
+            name: `${table.schema}.${table.name}`,
+          })),
+        };
+      },
+      complete: {
+        name: async (value) => {
+          const tables = await listTables(deps.pool);
+
+          return tables
+            .map((table) => table.name)
+            .filter((tableName) => tableName.startsWith(value));
+        },
+      },
+    }),
     {
       description: "Schema details for a single table.",
       mimeType: "application/json",
