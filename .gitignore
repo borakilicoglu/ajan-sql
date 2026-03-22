@@ -2,3 +2,5 @@ AGENTS.md
 node_modules/
 .husky/_/
 dist/
+docs/.vitepress/.temp/
+docs/.vitepress/cache/
