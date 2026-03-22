@@ -36,9 +36,7 @@
 
 `ajan-sql` is an npm package for running an MCP server over stdio with a PostgreSQL backend.
 
-The project is designed as:
-
-> psql + schema awareness + AI-safe guard layer
+`ajan-sql` provides schema-aware, read-only PostgreSQL access for MCP and AI workflows.
 
 ## Goals
 

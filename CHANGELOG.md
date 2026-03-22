@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.2
+
+- Refined README and docs homepage messaging
+- Added project documentation pages and navigation links
+- Added community and security guidance files
+- Added roadmap and changelog visibility from README and docs
+
 ## 0.1.1
 
 - Added VitePress docs site and GitHub Pages workflow

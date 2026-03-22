@@ -15,6 +15,8 @@ AI-safe MCP server for schema-aware, read-only SQL access.
 - query explain output
 - safe sample row inspection
 
+It provides schema-aware, read-only PostgreSQL access for MCP and AI workflows.
+
 ## Available Tools
 
 - `list_tables`
