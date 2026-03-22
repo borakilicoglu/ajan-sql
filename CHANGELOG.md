@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.3
+
+- Added structured MCP tool outputs across the full toolset
+- Improved server tests to verify structured tool responses
+- Removed the redundant `ajan-sql` heading from the docs homepage
+
 ## 0.1.2
 
 - Refined README and docs homepage messaging

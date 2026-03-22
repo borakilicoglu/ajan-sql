@@ -1,6 +1,5 @@
 ## What's Changed
 
-- Refined README and docs homepage messaging
-- Added project documentation pages and navigation links
-- Added community and security guidance files
-- Added roadmap and changelog visibility from README and docs
+- Added structured MCP tool outputs across the full toolset
+- Improved server tests to verify structured tool responses
+- Removed the redundant `ajan-sql` heading from the docs homepage
