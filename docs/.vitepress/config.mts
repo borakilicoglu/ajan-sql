@@ -5,7 +5,7 @@ const isGitHubActions = process.env.GITHUB_ACTIONS === "true";
 export default defineConfig({
   title: "ajan-sql",
   description: "AI-safe MCP server for schema-aware, read-only SQL access.",
-  base: isGitHubActions ? "/ajan/" : "/",
+  base: isGitHubActions ? "/ajan-sql/" : "/",
   themeConfig: {
     nav: [
       { text: "Guide", link: "/" },
@@ -23,7 +23,7 @@ export default defineConfig({
       },
     ],
     socialLinks: [
-      { icon: "github", link: "https://github.com/borakilicoglu/ajan" },
+      { icon: "github", link: "https://github.com/borakilicoglu/ajan-sql" },
     ],
   },
 });
