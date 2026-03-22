@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.4
+
+- Added table index metadata to `describe_table`
+- Enriched `list_tables` with table comments and estimated row counts
+- Expanded tool documentation for the richer schema metadata
+
 ## 0.1.3
 
 - Added structured MCP tool outputs across the full toolset

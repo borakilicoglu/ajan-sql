@@ -1,5 +1,5 @@
 ## What's Changed
 
-- Added structured MCP tool outputs across the full toolset
-- Improved server tests to verify structured tool responses
-- Removed the redundant `ajan-sql` heading from the docs homepage
+- Added table index metadata to `describe_table`
+- Enriched `list_tables` with table comments and estimated row counts
+- Expanded tool documentation for the richer schema metadata

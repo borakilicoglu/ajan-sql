@@ -196,7 +196,7 @@ The CLI will:
 
 ## Status
 
-Early development. Schema inspection, readonly query execution, query explain, and sample row tools are implemented. The CLI is published on npm, and current package version is `0.1.3`.
+Early development. Schema inspection, readonly query execution, query explain, and sample row tools are implemented. The CLI is published on npm, and current package version is `0.1.4`.
 
 ## License
 
