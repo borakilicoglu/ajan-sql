@@ -1,53 +1,54 @@
-<p align="center">
-  <img src="/cover.svg" alt="ajan-sql cover" width="860" />
-</p>
+---
+layout: home
 
-AI-safe MCP server for schema-aware, read-only SQL access.
+hero:
+  name: "ajan-sql"
+  text: "AI-safe MCP server for schema-aware, read-only SQL access."
+  tagline: "Run a PostgreSQL-backed MCP server over stdio with guarded queries, schema discovery, and structured tool outputs for AI workflows."
+  image:
+    src: /cover.svg
+    alt: ajan-sql cover
+  actions:
+    - theme: brand
+      text: Get Started
+      link: /tools
+    - theme: alt
+      text: View on npm
+      link: https://www.npmjs.com/package/ajan-sql
+    - theme: alt
+      text: GitHub
+      link: https://github.com/borakilicoglu/ajan-sql
 
-## What It Does
+features:
+  - title: Schema Aware
+    details: Inspect tables, columns, keys, relationships, and referenced columns without leaving your MCP client.
+  - title: Read-Only by Design
+    details: Enforce SELECT-only execution, reject dangerous statements, cap limits, and apply query timeouts by default.
+  - title: MCP Native
+    details: Expose tools and resources over stdio with structured outputs that work cleanly in LLM and AI client workflows.
+  - title: PostgreSQL Focused
+    details: Built directly on pg and PostgreSQL metadata, with practical tools for schema inspection and guarded query access.
+  - title: Explain and Sample
+    details: Return explain plans, query summaries, and representative sample rows with predictable, constrained behavior.
+  - title: Simple to Run
+    details: Install globally, set DATABASE_URL, and wire ajan-sql into Gemini, Claude Desktop, or any MCP-compatible client.
+---
 
-`ajan-sql` runs as an MCP server over stdio and connects to PostgreSQL for:
+## Quick Start
 
-- schema discovery
-- readonly query execution
-- query explain output
-- safe sample row inspection
-
-It provides schema-aware, read-only PostgreSQL access for MCP and AI workflows.
-
-## Available Tools
-
-- `list_tables`
-- `describe_table`
-- `list_relationships`
-- `run_readonly_query`
-- `explain_query`
-- `sample_rows`
-
-## Available Resources
-
-- `schema://snapshot`
-- `schema://table/{name}`
-
-## Install
+Install:
 
 ```bash
 npm install -g ajan-sql
 ```
 
-## Run
+Run:
 
 ```bash
 DATABASE_URL=postgres://USER:PASSWORD@HOST:PORT/DB ajan-sql
 ```
 
-## Local Development
-
-```bash
-DATABASE_URL=postgres://USER:PASSWORD@HOST:PORT/DB npm run dev
-```
-
-## Client Example
+## MCP Client Example
 
 ```json
 {
@@ -62,18 +63,16 @@ DATABASE_URL=postgres://USER:PASSWORD@HOST:PORT/DB npm run dev
 }
 ```
 
-## Client Example For Local Repo Builds
+## Available Tools
 
-```json
-{
-  "mcpServers": {
-    "ajan-sql": {
-      "command": "node",
-      "args": ["/absolute/path/to/ajan-sql/dist/index.js"],
-      "env": {
-        "DATABASE_URL": "postgres://USER:PASSWORD@HOST:PORT/DB"
-      }
-    }
-  }
-}
-```
+- `list_tables`
+- `describe_table`
+- `list_relationships`
+- `run_readonly_query`
+- `explain_query`
+- `sample_rows`
+
+## Available Resources
+
+- `schema://snapshot`
+- `schema://table/{name}`
