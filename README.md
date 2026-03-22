@@ -164,6 +164,13 @@ For repository-local development builds, point the command to the built CLI and 
 
 The repository supports local PostgreSQL integration testing during development, but any Docker compose files or seeded local test databases can remain untracked and machine-local.
 
+## Project Docs
+
+- [Changelog](./CHANGELOG.md)
+- [Roadmap](./ROADMAP.md)
+- [Contributing](./CONTRIBUTING.md)
+- [Security Policy](./SECURITY.md)
+
 ## Development Principles
 
 - Keep functions small and composable

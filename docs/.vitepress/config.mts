@@ -11,6 +11,9 @@ export default defineConfig({
       { text: "Guide", link: "/" },
       { text: "Tools", link: "/tools" },
       { text: "Security", link: "/security" },
+      { text: "Contributing", link: "/contributing" },
+      { text: "Roadmap", link: "/roadmap" },
+      { text: "npm", link: "https://www.npmjs.com/package/ajan-sql" },
     ],
     sidebar: [
       {
@@ -19,6 +22,9 @@ export default defineConfig({
           { text: "Overview", link: "/" },
           { text: "Tools", link: "/tools" },
           { text: "Security", link: "/security" },
+          { text: "Contributing", link: "/contributing" },
+          { text: "Roadmap", link: "/roadmap" },
+          { text: "Changelog", link: "/changelog" },
         ],
       },
     ],
