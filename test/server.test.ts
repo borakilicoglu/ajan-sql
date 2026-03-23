@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { DatabaseDialect } from "../src/dialects/types";
 import { createAjanServer } from "../src/server";
+import { TOOL_NAME_LIST, TOOL_NAMES } from "../src/tools/names";
 
 function createMockPool() {
   return {
@@ -161,7 +162,7 @@ describe("createAjanServer", () => {
     };
 
     const server = createAjanServer({ dialect }) as any;
-    const result = await server._registeredTools["run_readonly_query"].handler({
+    const result = await server._registeredTools[TOOL_NAMES.runReadonlyQuery].handler({
       sql: "SELECT 1",
     });
 
@@ -172,14 +173,7 @@ describe("createAjanServer", () => {
   it("registers all MCP tools", () => {
     const server = createAjanServer({ pool: createMockPool() as any }) as any;
 
-    expect(Object.keys(server._registeredTools).sort()).toEqual([
-      "describe_table",
-      "explain_query",
-      "list_relationships",
-      "list_tables",
-      "run_readonly_query",
-      "sample_rows",
-    ]);
+    expect(Object.keys(server._registeredTools).sort()).toEqual([...TOOL_NAME_LIST].sort());
   });
 
   it("registers static resources and resource templates", async () => {
@@ -199,7 +193,7 @@ describe("createAjanServer", () => {
 
   it("returns structured content for describe_table", async () => {
     const server = createAjanServer({ pool: createMockPool() as any }) as any;
-    const result = await server._registeredTools["describe_table"].handler({
+    const result = await server._registeredTools[TOOL_NAMES.describeTable].handler({
       name: "users",
       schema: "public",
     });
@@ -233,7 +227,7 @@ describe("createAjanServer", () => {
   it("returns structured content for readonly and explain query tools", async () => {
     const server = createAjanServer({ pool: createMockPool() as any }) as any;
 
-    const queryResult = await server._registeredTools["run_readonly_query"].handler({
+    const queryResult = await server._registeredTools[TOOL_NAMES.runReadonlyQuery].handler({
       sql: "SELECT id, email FROM users LIMIT 1",
     });
     expect(queryResult.content[0].text).toContain("Query returned 1 rows");
@@ -246,7 +240,7 @@ describe("createAjanServer", () => {
       { id: 1, email: "bora@example.com" },
     ]);
 
-    const explainResult = await server._registeredTools["explain_query"].handler({
+    const explainResult = await server._registeredTools[TOOL_NAMES.explainQuery].handler({
       sql: "SELECT id FROM users LIMIT 1",
     });
     expect(explainResult.content[0].text).toContain("Root node: Seq Scan");
@@ -263,7 +257,7 @@ describe("createAjanServer", () => {
   it("returns structured content for list and sample tools", async () => {
     const server = createAjanServer({ pool: createMockPool() as any }) as any;
 
-    const tablesResult = await server._registeredTools["list_tables"].handler({});
+    const tablesResult = await server._registeredTools[TOOL_NAMES.listTables].handler({});
     expect(tablesResult.content[0].text).toContain("Listed 2 tables");
     expect(tablesResult.structuredContent).toEqual([
       {
@@ -281,7 +275,7 @@ describe("createAjanServer", () => {
     ]);
 
     const relationshipsResult =
-      await server._registeredTools["list_relationships"].handler({});
+      await server._registeredTools[TOOL_NAMES.listRelationships].handler({});
     expect(relationshipsResult.content[0].text).toContain(
       "Listed 1 foreign key relationships",
     );
@@ -297,7 +291,7 @@ describe("createAjanServer", () => {
       },
     ]);
 
-    const sampleResult = await server._registeredTools["sample_rows"].handler({
+    const sampleResult = await server._registeredTools[TOOL_NAMES.sampleRows].handler({
       name: "users",
       schema: "public",
       limit: 1,

@@ -2,6 +2,7 @@ import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 
 import type { DatabaseDialect } from "../dialects/types";
+import { TOOL_NAMES } from "./names";
 import type {
   DescribeTableArgs,
   ExplainQueryArgs,
@@ -33,7 +34,7 @@ export function registerSchemaTools(
   const registerTool = server.registerTool.bind(server) as any;
 
   registerTool(
-    "list_tables",
+    TOOL_NAMES.listTables,
     {
       description: "Return all tables in the database.",
     },
@@ -47,7 +48,7 @@ export function registerSchemaTools(
   );
 
   registerTool(
-    "describe_table",
+    TOOL_NAMES.describeTable,
     {
       description: "Return columns and types for a given table.",
       inputSchema: {
@@ -71,7 +72,7 @@ export function registerSchemaTools(
   );
 
   registerTool(
-    "list_relationships",
+    TOOL_NAMES.listRelationships,
     {
       description: "Return foreign key relationships.",
     },
@@ -85,7 +86,7 @@ export function registerSchemaTools(
   );
 
   registerTool(
-    "run_readonly_query",
+    TOOL_NAMES.runReadonlyQuery,
     {
       description: "Execute a safe SELECT query.",
       inputSchema: {
@@ -102,7 +103,7 @@ export function registerSchemaTools(
   );
 
   registerTool(
-    "explain_query",
+    TOOL_NAMES.explainQuery,
     {
       description: "Return query execution plan.",
       inputSchema: {
@@ -120,7 +121,7 @@ export function registerSchemaTools(
   );
 
   registerTool(
-    "sample_rows",
+    TOOL_NAMES.sampleRows,
     {
       description: "Return example rows from a table.",
       inputSchema: {

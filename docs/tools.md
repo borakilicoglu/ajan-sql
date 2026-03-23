@@ -20,6 +20,15 @@ All tools return both:
 
 Tool outputs are normalized across dialects. Field values such as data types, index names, explain plans, and row estimates may vary between PostgreSQL, MySQL, and SQLite.
 
+## Canonical Shapes
+
+The canonical tool names and shared TypeScript payload shapes live in the source tree:
+
+- `src/tools/names.ts` for MCP tool identifiers
+- `src/tools/types.ts` for shared argument and response types
+
+The examples below document the runtime payloads those source files describe.
+
 ## `list_tables`
 
 Returns visible tables for the active dialect. PostgreSQL and MySQL include schema names; SQLite uses the main database namespace. Comments and row estimates are included when the active dialect can provide them.
