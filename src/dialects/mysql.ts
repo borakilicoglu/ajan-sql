@@ -40,8 +40,8 @@ async function listMysqlTables(pool: MysqlPool): Promise<TableSummary[]> {
   const [rows] = await pool.query<RowDataPacket[]>(
     `
       select
-        table_schema,
-        table_name,
+        table_schema as table_schema,
+        table_name as table_name,
         nullif(table_comment, '') as table_comment,
         table_rows as estimated_row_count
       from information_schema.tables
@@ -71,10 +71,10 @@ async function describeMysqlTable(
   const [columnRows] = await pool.query<RowDataPacket[]>(
     `
       select
-        c.column_name,
-        c.data_type,
-        c.is_nullable,
-        c.column_default,
+        c.column_name as column_name,
+        c.data_type as data_type,
+        c.is_nullable as is_nullable,
+        c.column_default as column_default,
         (c.column_key = 'PRI') as is_primary_key,
         (c.column_key in ('PRI', 'UNI')) as is_unique,
         k.referenced_table_schema as referenced_schema,
@@ -100,8 +100,8 @@ async function describeMysqlTable(
   const [indexRows] = await pool.query<RowDataPacket[]>(
     `
       select
-        index_name,
-        column_name,
+        index_name as index_name,
+        column_name as column_name,
         (non_unique = 0) as is_unique,
         (index_name = 'PRIMARY') as is_primary,
         seq_in_index as ordinal_position
@@ -127,7 +127,7 @@ async function listMysqlRelationships(
   const [rows] = await pool.query<RowDataPacket[]>(
     `
       select
-        constraint_name,
+        constraint_name as constraint_name,
         table_schema as source_schema,
         table_name as source_table,
         column_name as source_column,
