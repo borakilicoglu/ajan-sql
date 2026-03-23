@@ -3,6 +3,25 @@ import { describe, expect, it, vi } from "vitest";
 import type { DatabaseDialect } from "../src/dialects/types";
 import { createAjanServer } from "../src/server";
 import { TOOL_NAME_LIST, TOOL_NAMES } from "../src/tools/names";
+import type { ToolResponse } from "../src/tools/types";
+
+function expectTextSummary(result: ToolResponse<unknown>, summaryPart: string): void {
+  expect(result.content).toHaveLength(1);
+  expect(result.content[0]).toEqual({
+    type: "text",
+    text: expect.stringContaining(summaryPart),
+  });
+}
+
+function expectStructuredResult<T>(
+  result: ToolResponse<T>,
+  summaryPart: string,
+  expectedStructuredContent: T,
+): void {
+  expectTextSummary(result, summaryPart);
+  expect(result).toHaveProperty("structuredContent");
+  expect(result.structuredContent).toEqual(expectedStructuredContent);
+}
 
 function createMockPool() {
   return {
@@ -167,6 +186,7 @@ describe("createAjanServer", () => {
     });
 
     expect(dialect.runReadonlyQuery).toHaveBeenCalledWith("SELECT 1");
+    expectTextSummary(result, "Query returned 1 rows");
     expect(result.structuredContent.rowCount).toBe(1);
   });
 
@@ -198,8 +218,7 @@ describe("createAjanServer", () => {
       schema: "public",
     });
 
-    expect(result.content[0].text).toContain("Described table public.users");
-    expect(result.structuredContent).toEqual({
+    expectStructuredResult(result, "Described table public.users", {
       schema: "public",
       name: "users",
       columns: [
@@ -230,27 +249,45 @@ describe("createAjanServer", () => {
     const queryResult = await server._registeredTools[TOOL_NAMES.runReadonlyQuery].handler({
       sql: "SELECT id, email FROM users LIMIT 1",
     });
-    expect(queryResult.content[0].text).toContain("Query returned 1 rows");
-    expect(queryResult.structuredContent.rowCount).toBe(1);
-    expect(queryResult.structuredContent.columns).toEqual([
-      { name: "id", dataTypeId: 20 },
-      { name: "email", dataTypeId: 25 },
-    ]);
-    expect(queryResult.structuredContent.rows).toEqual([
-      { id: 1, email: "bora@example.com" },
-    ]);
+    expectStructuredResult(queryResult, "Query returned 1 rows", {
+      sql: "SELECT id, email FROM users LIMIT 1",
+      rowCount: 1,
+      durationMs: expect.any(Number),
+      columns: [
+        { name: "id", dataTypeId: 20 },
+        { name: "email", dataTypeId: 25 },
+      ],
+      rows: [
+        { id: 1, email: "bora@example.com" },
+      ],
+    });
 
     const explainResult = await server._registeredTools[TOOL_NAMES.explainQuery].handler({
       sql: "SELECT id FROM users LIMIT 1",
     });
-    expect(explainResult.content[0].text).toContain("Root node: Seq Scan");
-    expect(explainResult.structuredContent.summary).toEqual({
-      nodeType: "Seq Scan",
-      relationName: "users",
-      planRows: 1,
-      startupCost: 0,
-      totalCost: 1.01,
-      childCount: 0,
+    expectStructuredResult(explainResult, "Root node: Seq Scan", {
+      sql: "SELECT id FROM users LIMIT 1",
+      durationMs: expect.any(Number),
+      summary: {
+        nodeType: "Seq Scan",
+        relationName: "users",
+        planRows: 1,
+        startupCost: 0,
+        totalCost: 1.01,
+        childCount: 0,
+      },
+      plan: [
+        {
+          Plan: {
+            "Node Type": "Seq Scan",
+            "Relation Name": "users",
+            "Plan Rows": 1,
+            "Startup Cost": 0,
+            "Total Cost": 1.01,
+            Plans: [],
+          },
+        },
+      ],
     });
   });
 
@@ -258,8 +295,7 @@ describe("createAjanServer", () => {
     const server = createAjanServer({ pool: createMockPool() as any }) as any;
 
     const tablesResult = await server._registeredTools[TOOL_NAMES.listTables].handler({});
-    expect(tablesResult.content[0].text).toContain("Listed 2 tables");
-    expect(tablesResult.structuredContent).toEqual([
+    expectStructuredResult(tablesResult, "Listed 2 tables", [
       {
         schema: "public",
         name: "users",
@@ -276,10 +312,7 @@ describe("createAjanServer", () => {
 
     const relationshipsResult =
       await server._registeredTools[TOOL_NAMES.listRelationships].handler({});
-    expect(relationshipsResult.content[0].text).toContain(
-      "Listed 1 foreign key relationships",
-    );
-    expect(relationshipsResult.structuredContent).toEqual([
+    expectStructuredResult(relationshipsResult, "Listed 1 foreign key relationships", [
       {
         constraintName: "posts_user_id_fkey",
         sourceSchema: "public",
@@ -297,9 +330,12 @@ describe("createAjanServer", () => {
       limit: 1,
       columns: ["id"],
     });
-    expect(sampleResult.content[0].text).toContain("Sampled 1 rows from public.users");
-    expect(sampleResult.structuredContent.rowCount).toBe(1);
-    expect(sampleResult.structuredContent.columns).toEqual([{ name: "id", dataTypeId: 20 }]);
-    expect(sampleResult.structuredContent.rows).toEqual([{ id: 1 }]);
+    expectStructuredResult(sampleResult, "Sampled 1 rows from public.users", {
+      sql: 'SELECT "id" FROM "public"."users" ORDER BY "id" LIMIT 1',
+      rowCount: 1,
+      durationMs: expect.any(Number),
+      columns: [{ name: "id", dataTypeId: 20 }],
+      rows: [{ id: 1 }],
+    });
   });
 });
