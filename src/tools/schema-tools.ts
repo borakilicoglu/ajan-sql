@@ -20,6 +20,15 @@ type SchemaToolDeps = {
   dialect: DatabaseDialect;
 };
 
+type RegisterTool = (
+  name: string,
+  config: {
+    description: string;
+    inputSchema?: Record<string, unknown>;
+  },
+  handler: (args: any) => Promise<ToolResponse<unknown>>,
+) => void;
+
 function asStructuredResult<T>(summary: string, data: T): ToolResponse<T> {
   return {
     content: [
@@ -32,12 +41,7 @@ function asStructuredResult<T>(summary: string, data: T): ToolResponse<T> {
   };
 }
 
-export function registerSchemaTools(
-  server: McpServer,
-  deps: SchemaToolDeps,
-): void {
-  const registerTool = server.registerTool.bind(server) as any;
-
+function registerListTablesTool(registerTool: RegisterTool, deps: SchemaToolDeps): void {
   registerTool(
     TOOL_NAMES.listTables,
     {
@@ -51,7 +55,9 @@ export function registerSchemaTools(
       );
     },
   );
+}
 
+function registerDescribeTableTool(registerTool: RegisterTool, deps: SchemaToolDeps): void {
   registerTool(
     TOOL_NAMES.describeTable,
     {
@@ -72,7 +78,9 @@ export function registerSchemaTools(
       );
     },
   );
+}
 
+function registerListRelationshipsTool(registerTool: RegisterTool, deps: SchemaToolDeps): void {
   registerTool(
     TOOL_NAMES.listRelationships,
     {
@@ -86,7 +94,9 @@ export function registerSchemaTools(
       );
     },
   );
+}
 
+function registerReadonlyQueryTool(registerTool: RegisterTool, deps: SchemaToolDeps): void {
   registerTool(
     TOOL_NAMES.runReadonlyQuery,
     {
@@ -101,7 +111,9 @@ export function registerSchemaTools(
       );
     },
   );
+}
 
+function registerExplainQueryTool(registerTool: RegisterTool, deps: SchemaToolDeps): void {
   registerTool(
     TOOL_NAMES.explainQuery,
     {
@@ -117,7 +129,9 @@ export function registerSchemaTools(
       );
     },
   );
+}
 
+function registerSampleRowsTool(registerTool: RegisterTool, deps: SchemaToolDeps): void {
   registerTool(
     TOOL_NAMES.sampleRows,
     {
@@ -138,4 +152,24 @@ export function registerSchemaTools(
       );
     },
   );
+}
+
+const registerSchemaToolSet = [
+  registerListTablesTool,
+  registerDescribeTableTool,
+  registerListRelationshipsTool,
+  registerReadonlyQueryTool,
+  registerExplainQueryTool,
+  registerSampleRowsTool,
+] as const;
+
+export function registerSchemaTools(
+  server: McpServer,
+  deps: SchemaToolDeps,
+): void {
+  const registerTool = server.registerTool.bind(server) as RegisterTool;
+
+  for (const registerSchemaTool of registerSchemaToolSet) {
+    registerSchemaTool(registerTool, deps);
+  }
 }
