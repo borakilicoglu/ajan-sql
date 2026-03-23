@@ -4,7 +4,7 @@ layout: home
 hero:
   name: "ajan-sql"
   text: "AI-safe MCP server for schema-aware, read-only SQL access."
-  tagline: "Run a PostgreSQL-backed MCP server over stdio with guarded queries, schema discovery, and structured tool outputs for AI workflows."
+  tagline: "Run a PostgreSQL or MySQL-backed MCP server over stdio with guarded queries, schema discovery, and structured tool outputs for AI workflows."
   actions:
     - theme: brand
       text: Get Started
@@ -23,8 +23,8 @@ features:
     details: Enforce SELECT-only execution, reject dangerous statements, cap limits, and apply query timeouts by default.
   - title: MCP Native
     details: Expose tools and resources over stdio with structured outputs that work cleanly in LLM and AI client workflows.
-  - title: PostgreSQL Focused
-    details: Built directly on pg and PostgreSQL metadata, with practical tools for schema inspection and guarded query access.
+  - title: Dialect Ready
+    details: PostgreSQL is the most mature path today, and initial MySQL support now runs through the same MCP surface via the dialect interface.
   - title: Explain and Sample
     details: Return explain plans, query summaries, and representative sample rows with predictable, constrained behavior.
   - title: Simple to Run
@@ -46,7 +46,14 @@ DATABASE_DIALECT=postgres \
 DATABASE_URL=postgres://USER:PASSWORD@HOST:PORT/DB ajan-sql
 ```
 
-`DATABASE_DIALECT` is optional for now and defaults to `postgres`.
+MySQL:
+
+```bash
+DATABASE_DIALECT=mysql \
+DATABASE_URL=mysql://USER:PASSWORD@HOST:PORT/DB ajan-sql
+```
+
+`DATABASE_DIALECT` defaults to `postgres`. Supported values today are `postgres` and `mysql`.
 
 ## MCP Client Example
 

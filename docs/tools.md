@@ -18,6 +18,8 @@ All tools return both:
 - `content`: a short human-readable text summary
 - `structuredContent`: a machine-friendly payload for MCP clients
 
+Tool outputs are normalized across dialects. Field values such as data types, index names, explain plans, and row estimates may vary between PostgreSQL and MySQL.
+
 ## `list_tables`
 
 Returns all visible base tables outside PostgreSQL system schemas, including table comments and PostgreSQL row-count estimates when available.

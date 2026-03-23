@@ -34,9 +34,9 @@
 
 ## Overview
 
-`ajan-sql` is an npm package for running an MCP server over stdio with a PostgreSQL backend.
+`ajan-sql` is an npm package for running an MCP server over stdio with SQL database backends.
 
-The project is currently PostgreSQL-first, but the internal architecture now includes a database dialect interface so multi-database support can be added without rewriting the MCP surface.
+The project is currently PostgreSQL-first with initial MySQL support, and the internal architecture now includes a database dialect interface so additional backends can be added without rewriting the MCP surface.
 
 ## Goals
 
@@ -51,6 +51,7 @@ The project is currently PostgreSQL-first, but the internal architecture now inc
 - TypeScript
 - MCP TypeScript SDK v1.x
 - PostgreSQL via `pg`
+- MySQL via `mysql2`
 
 ## Security Model
 
@@ -113,18 +114,25 @@ Install the CLI globally from npm:
 npm install -g ajan-sql
 ```
 
-Run it with a PostgreSQL connection string:
+Run it with a PostgreSQL or MySQL connection string:
 
 ```bash
 DATABASE_DIALECT=postgres \
 DATABASE_URL=postgres://USER:PASSWORD@HOST:PORT/DB ajan-sql
 ```
 
-`DATABASE_DIALECT` is optional today and defaults to `postgres`. It is exposed now so future database adapters can plug into the same MCP surface.
+MySQL example:
+
+```bash
+DATABASE_DIALECT=mysql \
+DATABASE_URL=mysql://USER:PASSWORD@HOST:PORT/DB ajan-sql
+```
+
+`DATABASE_DIALECT` defaults to `postgres`. Supported values today are `postgres` and `mysql`.
 
 ## Local Development
 
-Start the server with a PostgreSQL connection string:
+Start the server with a PostgreSQL or MySQL connection string:
 
 ```bash
 DATABASE_DIALECT=postgres \
@@ -205,7 +213,7 @@ The CLI will:
 
 ## Status
 
-Early development. Schema inspection, readonly query execution, query explain, and sample row tools are implemented. The CLI is published on npm, and current package version is `0.1.4`.
+Early development. PostgreSQL support is the most mature path today, and initial MySQL support is now available through the dialect interface. The CLI is published on npm, and current package version is `0.1.4`.
 
 ## License
 
