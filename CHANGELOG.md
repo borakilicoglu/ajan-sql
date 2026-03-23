@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.8
+
+- Centralized MCP tool names and derived tool argument types from shared schemas
+- Tightened MCP tool and resource contract assertions in server tests
+- Added dedicated MCP resource contract documentation and docs navigation links
+- Simplified MCP tool registration and README header links
+
 ## 0.1.7
 
 - Pointed npm homepage metadata to the published docs site

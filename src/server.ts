@@ -23,7 +23,7 @@ export function createAjanServer(
 
   const server = new McpServer({
     name: "ajan-sql",
-    version: "0.1.7",
+    version: "0.1.8",
   });
 
   registerSchemaTools(server, { dialect });
