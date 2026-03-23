@@ -8,6 +8,11 @@ import { createAjanServer } from "./server";
 
 async function main(): Promise<void> {
   const config = getAppConfig();
+
+  if (config.databaseDialect !== "postgres") {
+    throw new Error(`Unsupported database dialect at runtime: ${config.databaseDialect}`);
+  }
+
   const pool = createDbPool({
     connectionString: config.databaseUrl,
     max: config.dbPoolMax,
