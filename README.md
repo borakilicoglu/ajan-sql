@@ -228,7 +228,7 @@ The CLI will:
 
 ## Status
 
-Early development. The CLI now supports PostgreSQL, MySQL, and SQLite through a shared dialect-based architecture, and the current package version is `0.1.6`.
+Early development. The CLI now supports PostgreSQL, MySQL, and SQLite through a shared dialect-based architecture, and the current package version is `0.1.7`.
 
 ## License
 
