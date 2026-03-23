@@ -88,6 +88,8 @@ Detailed payload examples are available in [docs/tools.md](./docs/tools.md).
 - `schema://snapshot`
 - `schema://table/{name}`
 
+Detailed resource payload examples are available in [docs/resources.md](./docs/resources.md).
+
 ## Install
 
 Install the CLI globally from npm:

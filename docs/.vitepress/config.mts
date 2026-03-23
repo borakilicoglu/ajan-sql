@@ -10,6 +10,7 @@ export default defineConfig({
     nav: [
       { text: "Guide", link: "/" },
       { text: "Tools", link: "/tools" },
+      { text: "Resources", link: "/resources" },
       { text: "Security", link: "/security" },
       { text: "Contributing", link: "/contributing" },
       { text: "Roadmap", link: "/roadmap" },
@@ -21,6 +22,7 @@ export default defineConfig({
         items: [
           { text: "Overview", link: "/" },
           { text: "Tools", link: "/tools" },
+          { text: "Resources", link: "/resources" },
           { text: "Security", link: "/security" },
           { text: "Contributing", link: "/contributing" },
           { text: "Roadmap", link: "/roadmap" },

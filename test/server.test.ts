@@ -23,6 +23,22 @@ function expectStructuredResult<T>(
   expect(result.structuredContent).toEqual(expectedStructuredContent);
 }
 
+function expectResourceContents(
+  result: {
+    contents: Array<{ uri: string; text: string; mimeType?: string }>;
+  },
+  expectedUri: string,
+  expectedPayload: unknown,
+): void {
+  expect(result.contents).toEqual([
+    {
+      uri: expectedUri,
+      text: JSON.stringify(expectedPayload, null, 2),
+      mimeType: "application/json",
+    },
+  ]);
+}
+
 function createMockPool() {
   return {
     query: vi.fn(async (sql: string, params?: unknown[]) => {
@@ -209,6 +225,72 @@ describe("createAjanServer", () => {
       { uri: "schema://table/users", name: "public.users" },
       { uri: "schema://table/posts", name: "public.posts" },
     ]);
+  });
+
+  it("returns contract-shaped resource payloads", async () => {
+    const server = createAjanServer({ pool: createMockPool() as any }) as any;
+
+    const snapshotResult = await server._registeredResources["schema://snapshot"].readCallback(
+      new URL("schema://snapshot"),
+    );
+    expectResourceContents(snapshotResult, "schema://snapshot", {
+      tables: [
+        {
+          schema: "public",
+          name: "users",
+          comment: "Application users",
+          estimatedRowCount: 42,
+        },
+        {
+          schema: "public",
+          name: "posts",
+          comment: null,
+          estimatedRowCount: 128,
+        },
+      ],
+      relationships: [
+        {
+          constraintName: "posts_user_id_fkey",
+          sourceSchema: "public",
+          sourceTable: "posts",
+          sourceColumn: "user_id",
+          targetSchema: "public",
+          targetTable: "users",
+          targetColumn: "id",
+        },
+      ],
+    });
+
+    const tableTemplate = server._registeredResourceTemplates["schema-table"];
+    const tableResult = await tableTemplate.readCallback(
+      new URL("schema://table/users"),
+      {
+        name: "users",
+      },
+    );
+    expectResourceContents(tableResult, "schema://table/users", {
+      schema: "public",
+      name: "users",
+      columns: [
+        {
+          name: "id",
+          dataType: "bigint",
+          isNullable: false,
+          defaultValue: null,
+          isPrimaryKey: true,
+          isUnique: true,
+          references: null,
+        },
+      ],
+      indexes: [
+        {
+          name: "users_pkey",
+          columns: ["id"],
+          isUnique: true,
+          isPrimary: true,
+        },
+      ],
+    });
   });
 
   it("returns structured content for describe_table", async () => {

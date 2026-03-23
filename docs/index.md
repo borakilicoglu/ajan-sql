@@ -91,3 +91,5 @@ DATABASE_URL=file:/absolute/path/to/database.sqlite ajan-sql
 
 - `schema://snapshot`
 - `schema://table/{name}`
+
+Detailed resource payload examples are available in [Resources](/resources).
