@@ -42,8 +42,11 @@ npm install -g ajan-sql
 Run:
 
 ```bash
+DATABASE_DIALECT=postgres \
 DATABASE_URL=postgres://USER:PASSWORD@HOST:PORT/DB ajan-sql
 ```
+
+`DATABASE_DIALECT` is optional for now and defaults to `postgres`.
 
 ## MCP Client Example
 
@@ -53,6 +56,7 @@ DATABASE_URL=postgres://USER:PASSWORD@HOST:PORT/DB ajan-sql
     "ajan-sql": {
       "command": "ajan-sql",
       "env": {
+        "DATABASE_DIALECT": "postgres",
         "DATABASE_URL": "postgres://USER:PASSWORD@HOST:PORT/DB"
       }
     }

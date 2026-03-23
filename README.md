@@ -116,14 +116,18 @@ npm install -g ajan-sql
 Run it with a PostgreSQL connection string:
 
 ```bash
+DATABASE_DIALECT=postgres \
 DATABASE_URL=postgres://USER:PASSWORD@HOST:PORT/DB ajan-sql
 ```
+
+`DATABASE_DIALECT` is optional today and defaults to `postgres`. It is exposed now so future database adapters can plug into the same MCP surface.
 
 ## Local Development
 
 Start the server with a PostgreSQL connection string:
 
 ```bash
+DATABASE_DIALECT=postgres \
 DATABASE_URL=postgres://USER:PASSWORD@HOST:PORT/DB npm run dev
 ```
 
@@ -131,6 +135,7 @@ Or build and run the compiled server:
 
 ```bash
 npm run build
+DATABASE_DIALECT=postgres \
 DATABASE_URL=postgres://USER:PASSWORD@HOST:PORT/DB npm start
 ```
 
@@ -144,6 +149,7 @@ For MCP clients that launch globally installed stdio servers:
     "ajan-sql": {
       "command": "ajan-sql",
       "env": {
+        "DATABASE_DIALECT": "postgres",
         "DATABASE_URL": "postgres://USER:PASSWORD@HOST:PORT/DB"
       }
     }
@@ -160,6 +166,7 @@ For repository-local development builds, point the command to the built CLI and 
       "command": "node",
       "args": ["/absolute/path/to/ajan-sql/dist/index.js"],
       "env": {
+        "DATABASE_DIALECT": "postgres",
         "DATABASE_URL": "postgres://USER:PASSWORD@HOST:PORT/DB"
       }
     }
