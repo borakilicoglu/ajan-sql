@@ -542,4 +542,92 @@ describe("createAjanServer", () => {
       rows: [{ id: 1 }],
     });
   });
+
+  it("reuses cached schema results across tools and resources", async () => {
+    const dialect: DatabaseDialect = {
+      name: "test",
+      listTables: vi.fn(async () => [
+        {
+          schema: "public",
+          name: "users",
+          comment: null,
+          estimatedRowCount: 1,
+        },
+      ]),
+      describeTable: vi.fn(async () => ({
+        schema: "public",
+        name: "users",
+        columns: [
+          {
+            name: "id",
+            dataType: "bigint",
+            isNullable: false,
+            defaultValue: null,
+            isPrimaryKey: true,
+            isUnique: true,
+            references: null,
+          },
+        ],
+        indexes: [],
+      })),
+      listRelationships: vi.fn(async () => [
+        {
+          constraintName: "users_parent_id_fkey",
+          sourceSchema: "public",
+          sourceTable: "users",
+          sourceColumn: "parent_id",
+          targetSchema: "public",
+          targetTable: "users",
+          targetColumn: "id",
+        },
+      ]),
+      runReadonlyQuery: vi.fn(async () => ({
+        sql: "SELECT 1 LIMIT 1",
+        rowCount: 1,
+        durationMs: 1,
+        columns: [],
+        rows: [{ value: 1 }],
+      })),
+      explainReadonlyQuery: vi.fn(async () => ({
+        sql: "SELECT 1 LIMIT 1",
+        durationMs: 1,
+        summary: null,
+        plan: [],
+      })),
+      sampleRows: vi.fn(async () => ({
+        sql: 'SELECT * FROM "public"."users" LIMIT 1',
+        rowCount: 1,
+        durationMs: 1,
+        columns: [],
+        rows: [{ id: 1 }],
+      })),
+    };
+
+    const server = createAjanServer({ dialect }) as any;
+    const tableTemplate = server._registeredResourceTemplates["schema-table"];
+
+    await server._registeredTools[TOOL_NAMES.listTables].handler({});
+    await server._registeredResources["schema://snapshot"].readCallback(
+      new URL("schema://snapshot"),
+    );
+    await tableTemplate.resourceTemplate.listCallback();
+    await tableTemplate.resourceTemplate.completeCallback("name", "u");
+
+    await server._registeredTools[TOOL_NAMES.describeTable].handler({
+      name: "users",
+      schema: "public",
+    });
+    await tableTemplate.readCallback(new URL("schema://table/users"), {
+      name: "users",
+    });
+
+    await server._registeredTools[TOOL_NAMES.listRelationships].handler({});
+    await server._registeredResources["schema://snapshot"].readCallback(
+      new URL("schema://snapshot"),
+    );
+
+    expect(dialect.listTables).toHaveBeenCalledTimes(1);
+    expect(dialect.describeTable).toHaveBeenCalledTimes(1);
+    expect(dialect.listRelationships).toHaveBeenCalledTimes(1);
+  });
 });

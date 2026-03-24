@@ -1,5 +1,6 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
+import { withSchemaCache } from "./dialects/cache";
 import { createPostgresDialect } from "./dialects/postgres";
 import type { DatabaseDialect } from "./dialects/types";
 import type { DbPool } from "./db/pool";
@@ -21,13 +22,15 @@ export function createAjanServer(
     throw new Error("createAjanServer requires either a pool or a dialect");
   }
 
+  const cachedDialect = withSchemaCache(dialect);
+
   const server = new McpServer({
     name: "ajan-sql",
     version: "0.1.8",
   });
 
-  registerSchemaTools(server, { dialect });
-  registerSchemaResources(server, { dialect });
+  registerSchemaTools(server, { dialect: cachedDialect });
+  registerSchemaResources(server, { dialect: cachedDialect });
 
   return server;
 }

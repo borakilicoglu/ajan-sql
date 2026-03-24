@@ -54,6 +54,8 @@ All executed queries must follow these rules:
 
 These rules should never be bypassed.
 
+Schema metadata calls such as `list_tables`, `describe_table`, and `list_relationships` are cached briefly in-memory to avoid repeated catalog queries during the same client session.
+
 ## Available MCP Tools
 
 - `list_tables`
