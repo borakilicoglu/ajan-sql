@@ -64,6 +64,8 @@ DATABASE_URL=file:/absolute/path/to/database.sqlite ajan-sql
 
 ## MCP Client Example
 
+Add `ajan-sql` to your MCP client as a stdio server:
+
 ```json
 {
   "mcpServers": {
@@ -77,6 +79,25 @@ DATABASE_URL=file:/absolute/path/to/database.sqlite ajan-sql
   }
 }
 ```
+
+If your client should run a repository-local build instead of a globally installed binary, use:
+
+```json
+{
+  "mcpServers": {
+    "ajan-sql": {
+      "command": "node",
+      "args": ["/absolute/path/to/ajan-sql/dist/index.js"],
+      "env": {
+        "DATABASE_DIALECT": "postgres",
+        "DATABASE_URL": "postgres://USER:PASSWORD@HOST:PORT/DB"
+      }
+    }
+  }
+}
+```
+
+For MySQL, set `DATABASE_DIALECT` to `mysql`. For SQLite, set `DATABASE_DIALECT` to `sqlite` and use a file URL such as `file:/absolute/path/to/database.sqlite`.
 
 ## Available Tools
 

@@ -197,6 +197,21 @@ For repository-local development builds, point the command to the built CLI and 
 }
 ```
 
+For MySQL, set `DATABASE_DIALECT` to `mysql` and use a MySQL connection string. For SQLite, set `DATABASE_DIALECT` to `sqlite` and use a file URL such as `file:/absolute/path/to/database.sqlite`.
+
+After the server is added, MCP clients can discover these tools and resources automatically:
+
+- `server_info`
+- `list_tables`
+- `describe_table`
+- `list_relationships`
+- `search_schema`
+- `run_readonly_query`
+- `explain_query`
+- `sample_rows`
+- `schema://snapshot`
+- `schema://table/{name}`
+
 ## Integration Testing
 
 The repository supports local integration testing during development, but any Docker compose files or seeded local test databases can remain untracked and machine-local.
