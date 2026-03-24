@@ -213,6 +213,10 @@ The CLI will:
 
 Early development. The CLI now supports PostgreSQL, MySQL, and SQLite through a shared dialect-based architecture, and the current package version is `0.1.8`.
 
+## Support
+
+If `ajan-sql` saves you time, helps you ship faster, or keeps a few risky queries out of trouble, you can support the project on GitHub Sponsors: [@borakilicoglu](https://github.com/sponsors/borakilicoglu)
+
 ## License
 
 MIT
