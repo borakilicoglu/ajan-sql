@@ -4,7 +4,7 @@
 
 <p align="center">
   <a href="https://www.npmjs.com/package/ajan-sql"><img src="https://img.shields.io/npm/v/ajan-sql" alt="npm version" /></a>
-  <a href="https://www.npmjs.com/package/ajan-sql"><img src="https://img.shields.io/npm/dm/ajan-sql" alt="npm downloads" /></a>
+  <a href="https://www.npmjs.com/package/ajan-sql"><img src="https://img.shields.io/npm/dt/ajan-sql" alt="npm downloads" /></a>
   <a href="https://borakilicoglu.github.io/ajan-sql/"><img src="https://img.shields.io/badge/docs-vitepress-5d98ea" alt="docs" /></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-lightgrey" alt="license" /></a>
 </p>
@@ -69,16 +69,16 @@ Schema metadata calls such as `list_tables`, `describe_table`, and `list_relatio
 
 ## Tool Matrix
 
-| Tool | Purpose | Inputs | Guarded | Structured Output |
-| --- | --- | --- | --- | --- |
-| `list_tables` | List visible database tables with comments and row estimates | None | N/A | `TableSummary[]` |
-| `describe_table` | Describe columns and types for one table | `name`, optional `schema` | N/A | `TableDescription` |
-| `list_relationships` | List foreign key relationships | None | N/A | `RelationshipSummary[]` |
-| `server_info` | Return runtime server details for onboarding and diagnostics | None | N/A | `ServerInfoResult` |
-| `search_schema` | Search table and column names across the schema | `query`, optional `schema`, optional `limit` | N/A | `SearchSchemaResult` |
-| `run_readonly_query` | Execute a readonly `SELECT` query | `sql` | Yes | `ReadonlyQueryResult` |
-| `explain_query` | Return JSON execution plan for a readonly query | `sql` | Yes | `ExplainQueryResult` |
-| `sample_rows` | Return a limited sample from a table | `name`, optional `schema`, optional `limit`, optional `columns` | Yes | `ReadonlyQueryResult` |
+| Tool                 | Purpose                                                      | Inputs                                                          | Guarded | Structured Output       |
+| -------------------- | ------------------------------------------------------------ | --------------------------------------------------------------- | ------- | ----------------------- |
+| `list_tables`        | List visible database tables with comments and row estimates | None                                                            | N/A     | `TableSummary[]`        |
+| `describe_table`     | Describe columns and types for one table                     | `name`, optional `schema`                                       | N/A     | `TableDescription`      |
+| `list_relationships` | List foreign key relationships                               | None                                                            | N/A     | `RelationshipSummary[]` |
+| `server_info`        | Return runtime server details for onboarding and diagnostics | None                                                            | N/A     | `ServerInfoResult`      |
+| `search_schema`      | Search table and column names across the schema              | `query`, optional `schema`, optional `limit`                    | N/A     | `SearchSchemaResult`    |
+| `run_readonly_query` | Execute a readonly `SELECT` query                            | `sql`                                                           | Yes     | `ReadonlyQueryResult`   |
+| `explain_query`      | Return JSON execution plan for a readonly query              | `sql`                                                           | Yes     | `ExplainQueryResult`    |
+| `sample_rows`        | Return a limited sample from a table                         | `name`, optional `schema`, optional `limit`, optional `columns` | Yes     | `ReadonlyQueryResult`   |
 
 ## Structured Output
 
