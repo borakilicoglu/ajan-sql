@@ -20,6 +20,8 @@ All tools return both:
 - `content`: a short human-readable text summary
 - `structuredContent`: a machine-friendly payload for MCP clients
 
+Tool results also include an embedded `text/toon` resource inside `content`, carrying the same payload encoded in TOON.
+
 Tool outputs are normalized across dialects. Field values such as data types, index names, explain plans, and row estimates may vary between PostgreSQL, MySQL, and SQLite.
 
 Shared response envelope:
@@ -30,6 +32,14 @@ Shared response envelope:
     {
       "type": "text",
       "text": "Short summary"
+    },
+    {
+      "type": "resource",
+      "resource": {
+        "uri": "tool://ajan-sql/server_info/result.toon",
+        "mimeType": "text/toon",
+        "text": "name: ajan-sql"
+      }
     }
   ],
   "structuredContent": {}
@@ -158,7 +168,7 @@ Returns lightweight runtime details that help MCP clients confirm the active ver
 ```json
 {
   "name": "ajan-sql",
-  "version": "0.1.9",
+  "version": "0.2.0",
   "dialect": "postgres",
   "tools": ["server_info", "list_tables", "describe_table"],
   "resources": ["schema://snapshot", "schema://table/{name}"],

@@ -95,6 +95,8 @@ All queries are:
 }
 ```
 
+Tool responses include both standard MCP `structuredContent` and an embedded `text/toon` version of the same payload.
+
 ---
 
 ## 🌐 Supported Databases
@@ -121,7 +123,8 @@ DATABASE_URL=file:/absolute/path/to/database.sqlite
 - multi-database support
 - strict read-only guardrails
 - schema discovery + introspection
-- structured output for AI agents
+- structured JSON output for AI agents
+- TOON-formatted embedded tool results
 - predictable execution limits
 - type-safe schemas
 

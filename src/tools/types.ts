@@ -15,6 +15,15 @@ export type ToolTextContent = {
   text: string;
 };
 
+export type ToolResourceContent = {
+  type: "resource";
+  resource: {
+    uri: string;
+    text: string;
+    mimeType: "text/toon";
+  };
+};
+
 export type ToolErrorCode =
   | "INVALID_QUERY"
   | "NOT_FOUND"
@@ -28,8 +37,10 @@ export type ToolError = {
   message: string;
 };
 
+export type ToolContent = ToolTextContent | ToolResourceContent;
+
 export type ToolResponse<T> = {
-  content: ToolTextContent[];
+  content: ToolContent[];
   structuredContent: T;
 };
 

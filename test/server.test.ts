@@ -1,42 +1,62 @@
 import { describe, expect, it, vi } from "vitest";
 
 import type { DatabaseDialect } from "../src/dialects/types";
+import { encodeToon } from "../src/formats/toon";
 import { createAjanServer } from "../src/server";
 import { TOOL_NAME_LIST, TOOL_NAMES } from "../src/tools/names";
 import type { ToolResponse } from "../src/tools/types";
 import { AJAN_SQL_VERSION } from "../src/version";
 
 function expectTextSummary(result: ToolResponse<unknown>, summaryPart: string): void {
-  expect(result.content).toHaveLength(1);
   expect(result.content[0]).toEqual({
     type: "text",
     text: expect.stringContaining(summaryPart),
   });
 }
 
-function expectStructuredResult<T>(
+async function expectToonContent(
+  result: ToolResponse<unknown>,
+  toolName: string,
+): Promise<void> {
+  expect(result.content[1]).toEqual({
+    type: "resource",
+    resource: {
+      uri: `tool://ajan-sql/${toolName}/result.toon`,
+      text: await encodeToon(result.structuredContent),
+      mimeType: "text/toon",
+    },
+  });
+}
+
+async function expectStructuredResult<T>(
   result: ToolResponse<T>,
+  toolName: string,
   summaryPart: string,
   expectedStructuredContent: T,
-): void {
+): Promise<void> {
   expectTextSummary(result, summaryPart);
   expect(result).toHaveProperty("structuredContent");
   expect(result.structuredContent).toEqual(expectedStructuredContent);
+  await expectToonContent(result, toolName);
 }
 
-function expectErrorResult(
+async function expectErrorResult(
   result: ToolResponse<unknown>,
+  toolName: string,
   expectedCode: string,
   expectedMessage: string,
-): void {
+): Promise<void> {
   expectTextSummary(result, "Request failed:");
-  expect(result.structuredContent).toEqual({
+  const expectedStructuredContent = {
     ok: false,
     error: {
       code: expectedCode,
       message: expectedMessage,
     },
-  });
+  };
+
+  expect(result.structuredContent).toEqual(expectedStructuredContent);
+  await expectToonContent(result, toolName);
 }
 
 function expectResourceContents(
@@ -253,7 +273,7 @@ describe("createAjanServer", () => {
     const server = createAjanServer({ dialect }) as any;
     const result = await server._registeredTools[TOOL_NAMES.serverInfo].handler({});
 
-    expectStructuredResult(result, "Server ajan-sql", {
+    await expectStructuredResult(result, TOOL_NAMES.serverInfo, "Server ajan-sql", {
       name: "ajan-sql",
       version: AJAN_SQL_VERSION,
       dialect: "sqlite",
@@ -302,7 +322,12 @@ describe("createAjanServer", () => {
       schema: "public",
     });
 
-    expectErrorResult(result, "NOT_FOUND", "Table not found: public.missing_table");
+    await expectErrorResult(
+      result,
+      TOOL_NAMES.describeTable,
+      "NOT_FOUND",
+      "Table not found: public.missing_table",
+    );
   });
 
   it("returns a standard error payload for invalid readonly SQL", async () => {
@@ -334,7 +359,12 @@ describe("createAjanServer", () => {
       sql: "delete from users",
     });
 
-    expectErrorResult(result, "INVALID_QUERY", "Only SELECT queries are allowed");
+    await expectErrorResult(
+      result,
+      TOOL_NAMES.runReadonlyQuery,
+      "INVALID_QUERY",
+      "Only SELECT queries are allowed",
+    );
   });
 
   it("returns a standard error payload for invalid sample_rows columns", async () => {
@@ -368,8 +398,9 @@ describe("createAjanServer", () => {
       columns: ["password_hash"],
     });
 
-    expectErrorResult(
+    await expectErrorResult(
       result,
+      TOOL_NAMES.sampleRows,
       "INVALID_INPUT",
       "Unknown column for sample_rows: password_hash",
     );
@@ -469,7 +500,7 @@ describe("createAjanServer", () => {
       schema: "public",
     });
 
-    expectStructuredResult(result, "Described table public.users", {
+    await expectStructuredResult(result, TOOL_NAMES.describeTable, "Described table public.users", {
       schema: "public",
       name: "users",
       columns: [
@@ -500,7 +531,7 @@ describe("createAjanServer", () => {
     const queryResult = await server._registeredTools[TOOL_NAMES.runReadonlyQuery].handler({
       sql: "SELECT id, email FROM users LIMIT 1",
     });
-    expectStructuredResult(queryResult, "Query returned 1 rows", {
+    await expectStructuredResult(queryResult, TOOL_NAMES.runReadonlyQuery, "Query returned 1 rows", {
       sql: "SELECT id, email FROM users LIMIT 1",
       rowCount: 1,
       durationMs: expect.any(Number),
@@ -516,7 +547,7 @@ describe("createAjanServer", () => {
     const explainResult = await server._registeredTools[TOOL_NAMES.explainQuery].handler({
       sql: "SELECT id FROM users LIMIT 1",
     });
-    expectStructuredResult(explainResult, "Root node: Seq Scan", {
+    await expectStructuredResult(explainResult, TOOL_NAMES.explainQuery, "Root node: Seq Scan", {
       sql: "SELECT id FROM users LIMIT 1",
       durationMs: expect.any(Number),
       summary: {
@@ -546,7 +577,7 @@ describe("createAjanServer", () => {
     const server = createAjanServer({ pool: createMockPool() as any }) as any;
 
     const tablesResult = await server._registeredTools[TOOL_NAMES.listTables].handler({});
-    expectStructuredResult(tablesResult, "Listed 2 tables", [
+    await expectStructuredResult(tablesResult, TOOL_NAMES.listTables, "Listed 2 tables", [
       {
         schema: "public",
         name: "users",
@@ -563,7 +594,11 @@ describe("createAjanServer", () => {
 
     const relationshipsResult =
       await server._registeredTools[TOOL_NAMES.listRelationships].handler({});
-    expectStructuredResult(relationshipsResult, "Listed 1 foreign key relationships", [
+    await expectStructuredResult(
+      relationshipsResult,
+      TOOL_NAMES.listRelationships,
+      "Listed 1 foreign key relationships",
+      [
       {
         constraintName: "posts_user_id_fkey",
         sourceSchema: "public",
@@ -573,7 +608,8 @@ describe("createAjanServer", () => {
         targetTable: "users",
         targetColumn: "id",
       },
-    ]);
+      ],
+    );
 
     const sampleResult = await server._registeredTools[TOOL_NAMES.sampleRows].handler({
       name: "users",
@@ -581,7 +617,7 @@ describe("createAjanServer", () => {
       limit: 1,
       columns: ["id"],
     });
-    expectStructuredResult(sampleResult, "Sampled 1 rows from public.users", {
+    await expectStructuredResult(sampleResult, TOOL_NAMES.sampleRows, "Sampled 1 rows from public.users", {
       sql: 'SELECT "id" FROM "public"."users" ORDER BY "id" LIMIT 1',
       rowCount: 1,
       durationMs: expect.any(Number),
@@ -599,7 +635,7 @@ describe("createAjanServer", () => {
       limit: 5,
     });
 
-    expectStructuredResult(result, 'Found 2 schema matches for "id"', {
+    await expectStructuredResult(result, TOOL_NAMES.searchSchema, 'Found 2 schema matches for "id"', {
       query: "id",
       schema: "public",
       totalMatches: 2,

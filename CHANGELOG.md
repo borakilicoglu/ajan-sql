@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.0
+
+- Added embedded `text/toon` tool result content alongside `structuredContent`
+- Added TOON encoding support via `@toon-format/toon`
+- Updated README and tool contract docs for TOON output support
+- Refreshed README overview and MCP client setup guidance
+
 ## 0.1.9
 
 - Added `server_info` for lightweight server diagnostics and client onboarding

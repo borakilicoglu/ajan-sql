@@ -1,6 +1,6 @@
 {
   "name": "ajan-sql",
-  "version": "0.1.9",
+  "version": "0.2.0",
   "description": "AI-safe MCP server for schema-aware, read-only SQL access.",
   "bin": {
     "ajan-sql": "dist/index.js"
@@ -49,6 +49,7 @@
   "type": "commonjs",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.18.0",
+    "@toon-format/toon": "^2.1.0",
     "better-sqlite3": "^12.8.0",
     "mysql2": "^3.20.0",
     "pg": "^8.16.3",
